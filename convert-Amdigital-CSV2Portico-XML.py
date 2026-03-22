@@ -10,17 +10,18 @@ This is the script which is being used for the conversion of CSV to XML files.
 '''''
 # Constants declaration
 
-CSV_FILE_LOCATION = "/Portico-Project/Amdigital/APARTHEID_SA_1988-1994/Apartheid module 2 import spreadsheet.csv"
+CSV_FILE_LOCATION = "/Portico-Project/Amdigital/AMER_COMM_AFRICA_I/SETUP-23875/PQ-4838/Copy of Master Audio Import FULL.csv"
 
 CSV_FILE_DATA = open(CSV_FILE_LOCATION,'r', encoding='utf-8')
 
-display_name = 'Apartheid South Africa 1988-1994'
+display_name = 'American Committee on Africa I: Liberation Movements, Solidarity and Activism'
 
-local_output_location = "/Portico-Project/Amdigital/APARTHEID_SA_1988-1994/DataExport-PorticoOffsystemCreated/"
+local_output_location = "/Portico-Project/Amdigital/AMER_COMM_AFRICA_I/SETUP-23875/PQ-4838/DataExport-PorticoOffsystemCreated/"
 
-input_spreadsheet_metadata = "Apartheid_module_2_import_spreadsheet-csv-PTC-"
+input_spreadsheet_metadata = "Copy_of_Master_Audio_Import_FULL-csv-PTC-"
 
 Generate_PTC_Group_ID = True
+folder_name_column_index = 0
 ptc_group_id_name = []
 
 
@@ -36,13 +37,13 @@ while Generate_PTC_Group_ID:
         response = input("Do you want to generate group ID column (Y/N): ")
         if response == 'Y' or response == 'y':
             #Generate_PTC_Group_ID = True
-            response = input("Please enter group id name: ")
-            ptc_group_id_name.append(response)
+            response_grp_id = input("Please enter group id name: ")
+            ptc_group_id_name.append(response_grp_id)
         else:
             Generate_PTC_Group_ID = False
 
 
-folder_name_column_index = 2
+
 
 column_dict ={}
 
@@ -105,7 +106,7 @@ def generate_csv_data_dict(data_list, folder_column_index):
         if data_list[counter][folder_column_index] not in csv_data_dict:
             csv_data_dict[data_list[counter][folder_column_index]] = data_list[counter]
         else:
-            csv_data_dict[data_list[counter][folder_column_index] + '-duplicate-row-no-' + str(counter)] = data_list[counter]
+            csv_data_dict[data_list[counter][folder_column_index] + '-duplicateRow-index-' + str(counter)] = data_list[counter]
 
     #pprint.pprint(csv_data_dict)
     return csv_data_dict
