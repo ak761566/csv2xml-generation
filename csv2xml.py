@@ -10,8 +10,8 @@ import tkinter
 #
 
 class Csv2xml:
-    def __init__(self, collection_name : str, csv_file_location : str, folder_nam_col_index: int, group_id : str,
-                 window : tkinter, canvas : tkinter, run_btn: tkinter, quit_btn: tkinter):
+    def __init__(self, collection_name: str, csv_file_location: str, folder_nam_col_index: int, group_id: str,
+                 window: tkinter, canvas: tkinter, run_btn: tkinter, quit_btn: tkinter):
         self.collection_name = collection_name
         self.csv_file_location = csv_file_location
         self.window = window
@@ -39,7 +39,7 @@ class Csv2xml:
         # generate XML file for each row.
         # name of the xml file correspond to the image folder name
 
-        self.canvas.insert(tkinter.END, "Processing initiated..\n")
+        self.canvas.insert(tkinter.END, "Processing..\n")
         self.run_btn.config(state=tkinter.DISABLED)
         self.quit_btn.config(state=tkinter.DISABLED)
         self.window.update()
@@ -93,8 +93,10 @@ class Csv2xml:
         self.run_btn.config(state=tkinter.ACTIVE)
         self.quit_btn.config(state=tkinter.ACTIVE)
 
-        self.canvas.insert(tkinter.END, "Processing is completed..\n")
+        self.canvas.insert(tkinter.END, "Result..\n")
         self.canvas.insert(tkinter.END, f"XML files: {counter}.\n"
                                         f"Output folder: {os.path.dirname(self.csv_file_location) 
                                                           + "\\DataExport-PorticoOffsystem"}.")
+        self.canvas.insert(tkinter.END, "\nProcessing completed..\n\n")
+
 

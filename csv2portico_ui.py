@@ -3,6 +3,13 @@ from tkinter import *
 from csv2xml import Csv2xml
 import json
 
+'''
+UI module: csv2portico 
+Backend module: csv2xml
+
+This is UI based script to generate XML files from the supplied metadata CSV or XLSX files.
+
+'''
 
 class Ui:
     def __init__(self):
@@ -26,7 +33,7 @@ class Ui:
         self.entry_file_path = Entry(self.frm_1 , width=100)
         self.entry_file_path.grid(row=1, column=1, pady=5)
 
-        self.lbl_group_id = Label(self.frm_1, text="Group Id (use comma to separate multiple value): ")
+        self.lbl_group_id = Label(self.frm_1, text="Group Id (use comma to separate multiple values): ")
         self.lbl_group_id.grid(row=2, column=0, padx=5, pady=5)
         self.entry_group_id = Entry(self.frm_1, width=100)
         self.entry_group_id.grid(row=2, column=1, pady=5)
@@ -34,14 +41,14 @@ class Ui:
         self.frm_2 = Frame(self.window)
         self.frm_2.grid(row=1, column=0, padx=40)
 
-        self.lbl_file_name_col_index = Label(self.frm_2 , text="CSV column Index (for File Name): ")
+        self.lbl_file_name_col_index = Label(self.frm_2 , text="Image Folder Name Column Index: ")
         self.lbl_file_name_col_index.grid(row=0, column=0, sticky=W)
         self.entry_file_name_col_index = Entry(self.frm_2 , width=10)
         self.entry_file_name_col_index.grid(row=0, column=1, padx=0, pady=10) # use sticky attribute to align
                                                 # widget "w" (west/left), "e" (east/right), "n" (north/top),
                                     # "s" (south/bottom), or combinations like "ew" to stretch horizontally.
 
-        self.btn_run = Button(self.frm_2, text="Run", width=10, command=self.execute_split)
+        self.btn_run = Button(self.frm_2, text="Run", width=10, command=self.generate_xml_files)
         self.btn_run.grid(row=0, column=2, padx=10, pady=10)
 
 
@@ -50,9 +57,6 @@ class Ui:
 
         self.log_text = Text(self.frm_2, height=10)
         self.log_text.grid(row=1, column=0, rowspan=3, columnspan=4)
-
-
-
 
         self.on_load()
         self.window.mainloop()
@@ -101,7 +105,7 @@ class Ui:
             return False
 
 
-    def execute_split(self):
+    def generate_xml_files(self):
         self.error_log_list.clear()
 
         collection_name_validation = self.validate_coll_name()
