@@ -159,9 +159,6 @@ new_ui = Ui()
 
 
 
-
-
-
 # default_font = ("Sarif", 15, "bold")
 # script_dir = os.path.dirname(os.path.abspath(__file__))
 # image_file_path = os.path.join(script_dir,"tomato.png")

@@ -1,4 +1,5 @@
 import csv
+import json
 import os.path
 
 import pandas as pd
@@ -34,6 +35,7 @@ class Csv2xml:
             os.mkdir(self.out_file_directory)
 
 
+
     def read_supplied_csv(self):
         # Iterate over every row
         # generate XML file for each row.
@@ -44,13 +46,15 @@ class Csv2xml:
         self.quit_btn.config(state=tkinter.DISABLED)
         self.window.update()
 
-        dataFrame = pd.read_csv(self.csv_file_location)
+        # dataFrame = pd.read_csv(self.csv_file_location)
+        dataFrame = self.remove_empty_columns()
 
         self.canvas.insert(tkinter.END, f"Input CSV: {os.path.basename(self.csv_file_location)}\n"
                                                       f"Number of Rows: {dataFrame.shape[0]}\n"
                                                     f"Number of Columns:{dataFrame.shape[1]}\n\n")
         #print(dataFrame.dtypes)
         #print(dataFrame.shape)
+
         counter = 0
         for row in dataFrame.iterrows():
             counter += 1
@@ -100,3 +104,29 @@ class Csv2xml:
         self.canvas.insert(tkinter.END, "\nProcessing completed..\n\n")
 
 
+    def remove_empty_columns(self):
+        source_csv_file = self.csv_file_location
+        source_df = pd.read_csv(source_csv_file)
+        #print(source_df)
+        # 1. Identify which columns are completely empty (returns a Boolean Series)
+        empty_cols = source_df.isna().all()
+
+        # 2. Filter the column names using that mask and convert it to a Python list
+        empty_cols_name = source_df.columns[empty_cols].tolist()
+        print(empty_cols_name)
+        with open(os.path.join(self.input_folder_name, "removed_cols_names.json"),'w') as report:
+            empty_cols_details = {
+                "collection_name" : self.collection_name,
+                "empty_column_names" : empty_cols_name
+            }
+            print(self.input_folder_name)
+            json.dump(empty_cols_details, report, indent=2)
+
+
+        # 3. Filter the dataframe to keep only the columns that are NOT completely empty
+        new_source_df = source_df.loc[:, ~empty_cols]
+
+        #Save to CSV, ignoring the arbitrary row index numbers
+        #cleaned_csv_file = self.input_folder_name.replace('C:', '').replace('\\','/').replace('.','_') + "_innodata_updated.csv"
+
+        return new_source_df
