@@ -1,18 +1,42 @@
 import csv
 import json
 import os.path
-
+import re
+from pathlib import Path
+from dataclasses import dataclass
+from typing import Optional
 import pandas as pd
 import pprint
 import xml.etree.ElementTree as ET
 import tkinter
 
+from pandas.core.interchange.dataframe_protocol import DataFrame
+
+
 #TO DO: Convert CSV file each row into separate XML file
 #
 
+@dataclass
+class Collection:
+    collection_name: str
+    csv_file_location: str | Path
+    group_id: str
+
+
+
+
+
 class Csv2xml:
-    def __init__(self, collection_name: str, csv_file_location: str, folder_nam_col_index: int, group_id: str,
-                 window: tkinter, canvas: tkinter, run_btn: tkinter, quit_btn: tkinter):
+    def __init__(self, collection_name: str,
+                 csv_file_location: str | Path,
+                 folder_nam_col_index: int,
+                 group_id: str,
+                 is_column: int,
+                 window: tkinter,
+                 canvas: tkinter,
+                 run_btn: tkinter,
+                 quit_btn: tkinter):
+
         self.collection_name = collection_name
         self.csv_file_location = csv_file_location
         self.window = window
@@ -27,6 +51,7 @@ class Csv2xml:
                                    + "/" + "DataExport-PorticoOffsystemCreated")
 
         self.folder_nam_col_index =  folder_nam_col_index
+        self.is_column = is_column
         self.group_id = group_id
 
         self.file_path_token_list = self.csv_file_location.split('\\')
@@ -56,7 +81,7 @@ class Csv2xml:
         #print(dataFrame.shape)
 
         counter = 0
-        for row in dataFrame.iterrows():
+        for index, row in dataFrame.iterrows():
             counter += 1
             root_elem = ET.Element("root")
             tree = ET.ElementTree(root_elem)
@@ -64,30 +89,32 @@ class Csv2xml:
             collection_name_column = ET.SubElement(row_elem, "column", attrib=dict((("name", "ptc-added-collection-name"),)))
             collection_name_column.text = self.collection_name
 
-            if self.group_id:
+            if self.group_id and self.is_column == 0:
                 group_id_list = [item for item in self.group_id.split(',')]
 
+                gid = 0
                 for item in group_id_list:
-                    group_id_elem = ET.SubElement(row_elem, "column", attrib=dict((("name","ptc-group-id"),)))
+                    gid += 1
+                    group_id_elem = ET.SubElement(row_elem, "column", attrib=dict((("name",f"ptc-group-id-{gid}"),)))
                     group_id_elem.text = item.rstrip().lstrip()
 
 
-            for col in row:
-                if isinstance(col, int):
+            #print(row)
+            file_name = row.iloc[self.folder_nam_col_index]
+            for col_name, col_value in row.items():
+                #file_name = col.iloc[self.folder_nam_col_index]
+                #print(file_name)
+                payload = self.out_file_directory + '/' + self.metadata_file_name + file_name + ".xml"
+                result_file = open(payload, 'wb')
+                column = ET.SubElement(row_elem, "column", attrib=dict((("name", re.sub(r"\.\d","", col_name) ),)))
+                if str(col_value) == 'nan':
                     pass
                 else:
-                    file_name = col.iloc[self.folder_nam_col_index]
-                    #print(file_name)
-                    payload = self.out_file_directory + '/' + self.metadata_file_name + file_name + ".xml"
-                    result_file = open(payload, 'wb')
-                   #print(out_file_name_loc)
-                    for index, value in (col.items()):
-                        #print(f"{index}-{value}")
-                        column = ET.SubElement(row_elem, "column", attrib=dict((("name", index.__str__()),)))
-                        if str(value) == 'nan':
-                            pass
-                        else:
-                            column.text = str(value)
+                    column.text = str(col_value)
+
+                if col_name == self.group_id.strip() and self.is_column == 1:
+                    group_id_elem = ET.SubElement(row_elem, "column", attrib=dict((("name", "ptc-group-id-1"),)))
+                    group_id_elem.text = col_value
 
             ET.indent(tree, space="  ", level=0)
             tree.write(result_file, encoding="utf-8", xml_declaration=True, method="xml")
@@ -104,7 +131,7 @@ class Csv2xml:
         self.canvas.insert(tkinter.END, "\nProcessing completed..\n\n")
 
 
-    def remove_empty_columns(self):
+    def remove_empty_columns(self)-> DataFrame:
         source_csv_file = self.csv_file_location
         source_df = pd.read_csv(source_csv_file)
         #print(source_df)

@@ -1,3 +1,4 @@
+import tkinter
 from json import JSONDecodeError
 from tkinter import *
 from csv2xml import Csv2xml
@@ -33,10 +34,18 @@ class Ui:
         self.entry_file_path = Entry(self.frm_1 , width=100)
         self.entry_file_path.grid(row=1, column=1, pady=5)
 
-        self.lbl_group_id = Label(self.frm_1, text="Group Id (use comma to separate multiple values): ")
+        self.lbl_group_id = Label(self.frm_1, text="Group Id (use comma to separate\n multiple values): ")
         self.lbl_group_id.grid(row=2, column=0, padx=5, pady=5)
-        self.entry_group_id = Entry(self.frm_1, width=100)
+        self.entry_group_id = Entry(self.frm_1, width=60)
         self.entry_group_id.grid(row=2, column=1, pady=5)
+
+        # self.is_column_label = Label(self.frm_1, text="Is column")
+        # self.is_column_label.grid(row=2, column=2, padx=5, pady=5)
+        self.check_box_status = IntVar()
+        self.is_column = Checkbutton(self.frm_1, text="Column Name", variable=self.check_box_status)
+        self.is_column.grid(row=2, column=2, pady=5)
+
+
 
         self.frm_2 = Frame(self.window)
         self.frm_2.grid(row=1, column=0, padx=40)
@@ -71,6 +80,8 @@ class Ui:
                 self.entry_group_id.insert(0, jsom_data["group_id"])
                 self.entry_file_name_col_index.insert(0, jsom_data["folder_name_column_index"])
         except JSONDecodeError as error:
+            pass
+        except FileNotFoundError as exc:
             pass
 
     def validate_coll_name(self):
@@ -119,6 +130,8 @@ class Ui:
 
         folder_name_col_index = self.entry_file_name_col_index.get().rstrip().lstrip()
 
+        check_box_status  = self.check_box_status.get()
+
         #print(self.error_log_list)
 
         if collection_name_validation and file_path_validation and file_name_col_index_validation:
@@ -137,7 +150,7 @@ class Ui:
 
 
             csv2xml = Csv2xml(collection_name=collection_name, csv_file_location=csv_file_location,
-                           folder_nam_col_index=int(folder_name_col_index), group_id=group_id, window=self.window,
+                           folder_nam_col_index=int(folder_name_col_index), group_id=group_id, is_column=check_box_status, window=self.window,
                               canvas=self.log_text, run_btn=self.btn_run, quit_btn=self.btn_quit)
 
             #self.window.update()
@@ -146,8 +159,6 @@ class Ui:
             csv2xml.read_supplied_csv()
         else:
             self.log_text.insert(END, f"{self.error_log_list[0]}\n{self.error_log_list[1]}")
-
-
 
 
     def exit_application(self):
